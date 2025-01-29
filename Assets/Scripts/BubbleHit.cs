@@ -20,6 +20,7 @@ public class BubbleHit : MonoBehaviour
 
     private void Start()
     {
+        rectTransform = GetComponent<RectTransform>();
         originalPos = rectTransform.anchoredPosition;
     }
 
@@ -30,14 +31,18 @@ public class BubbleHit : MonoBehaviour
         RaycastHit2D hit = Physics2D.CircleCast(mousePosition, radius, Vector2.zero, 0, layerMask);
         if (hit.collider != null)
         {
+            if (hit.collider.gameObject.CompareTag("Sharp")) return;
             Debug.Log($"Hit {hit.collider.gameObject.name} at {hit.point}");
             GameObject go = Instantiate(bubblePhysic);
             go.transform.position = mousePosition;
+            BubblePop bubblePop = go.GetComponent<BubblePop>();
+            bubblePop.thing = hit.collider.GetComponent<Thing>();
             //go.GetComponent<BubbleHit>().enabled = false;
             // Do something with the hit object, e.g., highlight or interact
             hit.collider.GetComponent<Rigidbody2D>().bodyType = RigidbodyType2D.Kinematic;
             hit.collider.GetComponent<Rigidbody2D>().linearVelocity = Vector2.zero;
             hit.collider.GetComponent<Thing>().LockPosition(go.transform);
+            hit.collider.GetComponent<Collider2D>().enabled = false;
             hit.collider.gameObject.layer = layerAfterHit;
             rectTransform.anchoredPosition = originalPos;
         }
